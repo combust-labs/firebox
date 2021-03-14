@@ -1,0 +1,28 @@
+FROM local/firebox
+CMD ["echo"]
+
+# install the init system and some extra tools
+RUN apk add openrc util-linux
+
+# set up a login terminal on the serial console (ttyS0)
+RUN ln -s agetty /etc/init.d/agetty.ttyS0
+RUN echo ttyS0 > /etc/securetty
+RUN rc-update add agetty.ttyS0 default
+
+# make sure special file systems are mounted on boot
+RUN rc-update add devfs boot
+RUN rc-update add procfs boot
+RUN rc-update add sysfs boot
+
+# 1. enable local services:
+# https://wiki.gentoo.org/wiki/etc/local.d
+RUN rc-update add local default
+# 2. create a local service to Start fireboxEcho server on system boot
+RUN echo "#!/bin/sh" >> /etc/local.d/fireboxEcho.start
+RUN echo "/firebox echo && reboot || reboot" >> /etc/local.d/fireboxEcho.start
+# 3. make it executable:
+RUN chmod +x /etc/local.d/fireboxEcho.start
+# 4. For convenience, enable output from local service so I can see errors
+RUN echo rc_verbose=yes > /etc/conf.d/local
+# All done, exit docker shell
+RUN exit
