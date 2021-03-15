@@ -26,6 +26,9 @@ func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
 }
 
+// Avoid "path must be shorter than SUN_LEN" error
+const MaxSocketPathLength = 107
+
 type VMM interface {
 	Start() error
 	WaitFinished() error
@@ -122,7 +125,7 @@ func (f *vmm) GetIP() net.IP {
 }
 
 func (f *vmm) runVMM(ctx context.Context) (*firecracker.Machine, error) {
-	logger := f.logger.RawLogger().WithField("vmid", f.fcConfig.VMID)
+	logger := f.logger.RawLogger().WithField("vmid", f.fcConfig.VMID).WithField("subsystem", "firecracker-sdk")
 
 	opts := []firecracker.Opt{
 		firecracker.WithLogger(logger),
@@ -131,6 +134,17 @@ func (f *vmm) runVMM(ctx context.Context) (*firecracker.Machine, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "Machine creation failed")
 	}
+	if f.vmmConfig.DebugClient {
+		opts = append(opts, firecracker.WithClient(firecracker.NewClient(m.Cfg.SocketPath, logger, true)))
+		m, err = firecracker.NewMachine(ctx, *f.fcConfig, opts...)
+		if err != nil {
+			return nil, errors.Wrap(err, "Machine creation with debug failed")
+		}
+	}
+	if len(m.Cfg.SocketPath) > MaxSocketPathLength {
+		return nil, errors.Errorf("Socket path too long %d, this will generate 'path must be shorter than SUN_LEN'", len(m.Cfg.SocketPath))
+	}
+
 	if err := m.Start(ctx); err != nil {
 		return nil, errors.Wrap(err, "Machine start failed")
 	}

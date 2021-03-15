@@ -26,6 +26,7 @@ type CNIConfig struct {
 type VMMConfig struct {
 	SocketPath  string
 	LogLevel    string
+	DebugClient bool
 	RootFS      string
 	KernelImage string
 	KernelArgs  string
