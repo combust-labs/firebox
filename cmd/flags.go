@@ -24,6 +24,8 @@ func initVMMConfigFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&vmmConfig.LogLevel, "machine-log-level", models.LoggerLevelDebug, "Verbosity of Firecracker logging.  One of: Debug, Info, Warning or Error")
 	cmd.Flags().BoolVar(&vmmConfig.DebugClient, "machine-debug-client", false, "Debug firecracker HTTP calls. Requires machine log level debug.")
 
+	cmd.Flags().BoolVar(&vmmConfig.Network.AllowMMDS, "mmds", false, "Activate the microVM Metadata Service")
+
 	cmd.Flags().StringVar(&vmmConfig.Network.CNI.BinDir, "cni-bin-dir", "/opt/cni/bin", "CNI plugins binaries directory")
 	cmd.Flags().StringVar(&vmmConfig.Network.CNI.ConfDir, "cni-conf-dir", "/etc/cni/conf.d", "CNI configuration directory")
 	cmd.Flags().StringVar(&vmmConfig.Network.CNI.CacheDir, "cni-cache-dir", "/var/lib/cni", "CNI cache directory")

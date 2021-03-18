@@ -39,7 +39,8 @@ type VMMConfig struct {
 		VcpuCount   int64
 	}
 	Network struct {
-		CNI CNIConfig
+		CNI       CNIConfig
+		AllowMMDS bool
 	}
 	VMM struct {
 		ShutdownTimeout time.Duration

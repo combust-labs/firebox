@@ -276,6 +276,7 @@ func getNetworkInterfaces(c *config.VMMConfig) firecracker.NetworkInterfaces {
 				NetworkName: c.Network.CNI.NetworkName,
 				IfName:      vethIfaceName,
 			},
+			AllowMMDS: c.Network.AllowMMDS,
 		},
 	}
 }
